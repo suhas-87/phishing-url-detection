@@ -6,7 +6,7 @@
 
 const API_BASE = window.location.origin.includes("5000")
   ? window.location.origin
-  : "http://127.0.0.1:5000";
+  : "https://phishing-url-detection-ih6x.onrender.com";
 
 const STORAGE_KEY = "phishguard_scan_history";
 
