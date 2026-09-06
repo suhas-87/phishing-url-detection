@@ -4,7 +4,7 @@
  * Handles LocalStorage history, UI gauges, and navigation.
  */
 
-const API_BASE = window.location.origin.includes("5000")
+const API_BASE = window.location.origin
   ? window.location.origin
   : "https://phishing-url-detection-ih6x.onrender.com";
 
