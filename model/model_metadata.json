@@ -1,0 +1,50 @@
+{
+    "best_model": "Random Forest",
+    "metrics": {
+        "accuracy": 100.0,
+        "precision": 100.0,
+        "recall": 100.0,
+        "f1_score": 100.0
+    },
+    "all_models": {
+        "Logistic Regression": {
+            "accuracy": 99.69,
+            "precision": 100.0,
+            "recall": 99.38,
+            "f1_score": 99.69
+        },
+        "Decision Tree": {
+            "accuracy": 99.69,
+            "precision": 100.0,
+            "recall": 99.38,
+            "f1_score": 99.69
+        },
+        "Random Forest": {
+            "accuracy": 100.0,
+            "precision": 100.0,
+            "recall": 100.0,
+            "f1_score": 100.0
+        }
+    },
+    "feature_names": [
+        "url_length",
+        "domain_length",
+        "num_dots",
+        "num_hyphens",
+        "num_digits",
+        "num_special_chars",
+        "num_slashes",
+        "has_https",
+        "is_ip_address",
+        "num_subdomains",
+        "suspicious_words_count"
+    ],
+    "dataset_stats": {
+        "total_samples": 3200,
+        "legitimate_samples": 1600,
+        "phishing_samples": 1600,
+        "train_samples": 2560,
+        "test_samples": 640
+    },
+    "trained_at": "2026-09-06 12:14:39"
+}

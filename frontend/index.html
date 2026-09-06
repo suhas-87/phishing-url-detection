@@ -1,0 +1,349 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>PhishGuard – AI-Powered Phishing URL Detection</title>
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+  <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700;800&family=JetBrains+Mono:wght@400;500;700&display=swap" rel="stylesheet">
+  <link rel="stylesheet" href="style.css" />
+</head>
+<body>
+  <!-- Background Glow & Grid -->
+  <div class="cyber-grid"></div>
+  <div class="ambient-glow cyan-glow"></div>
+  <div class="ambient-glow purple-glow"></div>
+
+  <!-- Navigation Bar -->
+  <header class="navbar">
+    <div class="nav-container">
+      <div class="logo">
+        <span class="shield-icon">🛡️</span>
+        <span class="logo-text">Phish<span class="cyan-text">Guard</span></span>
+        <span class="badge-tag">BCA ML PROJECT</span>
+      </div>
+      <nav class="nav-links">
+        <a href="#scanner" class="nav-link active" data-target="scanner">URL Scanner</a>
+        <a href="#history" class="nav-link" data-target="history">Scan History</a>
+        <a href="#model-info" class="nav-link" data-target="model-info">Model Details</a>
+        <a href="#about" class="nav-link" data-target="about">About Project</a>
+      </nav>
+      <div class="server-status" id="serverStatusBadge">
+        <span class="status-dot"></span>
+        <span class="status-text">Connecting...</span>
+      </div>
+    </div>
+  </header>
+
+  <main class="main-content">
+    <!-- SECTION 1: URL SCANNER (HERO & INTERACTIVE SCANNER) -->
+    <section id="scanner" class="page-section active-section">
+      <div class="hero-section">
+        <div class="hero-badge">
+          <span class="pulse-icon">⚡</span> Real-Time Machine Learning Threat Classifier
+        </div>
+        <h1 class="hero-title">
+          AI-Powered <span class="gradient-text">Phishing URL Detection</span>
+        </h1>
+        <p class="hero-desc">
+          Check whether a website URL is safe or potentially malicious using Machine Learning.
+          Features 11-point URL structural analysis powered by Scikit-Learn classifiers.
+        </p>
+
+        <!-- Scanner Card -->
+        <div class="scanner-card">
+          <form id="urlScanForm" class="scan-form">
+            <div class="input-wrapper">
+              <span class="input-prefix-icon">🌐</span>
+              <input 
+                type="text" 
+                id="urlInput" 
+                placeholder="Enter website URL here... (e.g., https://paypal.com or http://192.168.1.10/login-verify.php)" 
+                required 
+                autocomplete="off"
+                spellcheck="false"
+              />
+              <button type="button" id="clearInputBtn" class="clear-btn" title="Clear input">✕</button>
+            </div>
+            <button type="submit" id="scanBtn" class="primary-scan-btn">
+              <span class="btn-text">Scan URL</span>
+              <span class="btn-icon">⚡</span>
+            </button>
+          </form>
+
+          <!-- Quick Test Sample Buttons -->
+          <div class="sample-chips">
+            <span class="chip-label">Quick test samples:</span>
+            <button type="button" class="sample-chip legit" data-url="https://www.google.com/search?q=machine+learning">
+              Safe: Google
+            </button>
+            <button type="button" class="sample-chip legit" data-url="https://en.wikipedia.org/wiki/Cybersecurity">
+              Safe: Wikipedia
+            </button>
+            <button type="button" class="sample-chip phish" data-url="http://192.168.1.10/paypal-login-verify-account.php">
+              Phish: IP Host
+            </button>
+            <button type="button" class="sample-chip phish" data-url="http://appleid-verify-secure-update.xyz/signin/auth?token=92839">
+              Phish: Fake Apple
+            </button>
+          </div>
+        </div>
+
+        <!-- Scanning Loader -->
+        <div id="scanLoader" class="scan-loader hidden">
+          <div class="radar-spinner"></div>
+          <p class="loader-text">Extracting 11 URL features & evaluating with Random Forest classifier...</p>
+        </div>
+
+        <!-- Result Card -->
+        <div id="resultCard" class="result-card hidden">
+          <!-- Populated dynamically via script.js -->
+        </div>
+      </div>
+    </section>
+
+    <!-- SECTION 2: SCAN HISTORY -->
+    <section id="history" class="page-section hidden">
+      <div class="section-header">
+        <h2 class="section-title">Scan <span class="cyan-text">History</span></h2>
+        <p class="section-subtitle">URLs analyzed in this browser session (saved in local storage)</p>
+        <div class="history-actions">
+          <button id="clearHistoryBtn" class="secondary-btn danger">Clear History</button>
+        </div>
+      </div>
+
+      <div class="history-container">
+        <div id="emptyHistoryMsg" class="empty-state">
+          <span class="empty-icon">📋</span>
+          <h3>No Scans Yet</h3>
+          <p>Scan a URL using the URL Scanner above to build your inspection log.</p>
+        </div>
+        <div class="table-responsive">
+          <table id="historyTable" class="cyber-table hidden">
+            <thead>
+              <tr>
+                <th>Time</th>
+                <th>Target URL</th>
+                <th>Classification</th>
+                <th>Confidence</th>
+                <th>Risk Level</th>
+                <th>Action</th>
+              </tr>
+            </thead>
+            <tbody id="historyTableBody"></tbody>
+          </table>
+        </div>
+      </div>
+    </section>
+
+    <!-- SECTION 3: MODEL INFORMATION -->
+    <section id="model-info" class="page-section hidden">
+      <div class="section-header">
+        <h2 class="section-title">Machine Learning <span class="cyan-text">Model Details</span></h2>
+        <p class="section-subtitle">Academic overview of training, algorithms, features, and performance metrics for BCA demonstration</p>
+      </div>
+
+      <!-- Live Model Stats Row -->
+      <div class="metrics-grid">
+        <div class="metric-card">
+          <span class="metric-title">Selected Model</span>
+          <span class="metric-value cyan-text" id="statModelName">Random Forest</span>
+          <span class="metric-desc">Champion classifier automatically chosen</span>
+        </div>
+        <div class="metric-card">
+          <span class="metric-title">Test Accuracy</span>
+          <span class="metric-value green-text" id="statAccuracy">100.0%</span>
+          <span class="metric-desc">Overall prediction accuracy</span>
+        </div>
+        <div class="metric-card">
+          <span class="metric-title">F1 Score</span>
+          <span class="metric-value purple-text" id="statF1">100.0%</span>
+          <span class="metric-desc">Balanced Precision & Recall</span>
+        </div>
+        <div class="metric-card">
+          <span class="metric-title">Dataset Size</span>
+          <span class="metric-value amber-text" id="statDatasetSize">3,200 URLs</span>
+          <span class="metric-desc">80% Train (2,560) / 20% Test (640)</span>
+        </div>
+      </div>
+
+      <!-- Algorithm Comparison Table -->
+      <div class="info-card">
+        <h3>Algorithm Comparison & Benchmark</h3>
+        <p>Three classification algorithms were trained on the identical 80/20 train/test split. The model with highest F1 score is automatically saved as <code>model/phishing_model.pkl</code>.</p>
+        <div class="table-responsive">
+          <table class="cyber-table">
+            <thead>
+              <tr>
+                <th>Algorithm</th>
+                <th>Accuracy</th>
+                <th>Precision</th>
+                <th>Recall</th>
+                <th>F1 Score</th>
+                <th>Status</th>
+              </tr>
+            </thead>
+            <tbody id="modelComparisonBody">
+              <tr>
+                <td><strong>Random Forest Classifier</strong></td>
+                <td>100.00%</td>
+                <td>100.00%</td>
+                <td>100.00%</td>
+                <td>100.00%</td>
+                <td><span class="badge legit-badge">CHAMPION</span></td>
+              </tr>
+              <tr>
+                <td><strong>Decision Tree Classifier</strong></td>
+                <td>99.69%</td>
+                <td>100.00%</td>
+                <td>99.38%</td>
+                <td>99.69%</td>
+                <td><span class="badge info-badge">Evaluated</span></td>
+              </tr>
+              <tr>
+                <td><strong>Logistic Regression</strong></td>
+                <td>99.69%</td>
+                <td>100.00%</td>
+                <td>99.38%</td>
+                <td>99.69%</td>
+                <td><span class="badge info-badge">Evaluated</span></td>
+              </tr>
+            </tbody>
+          </table>
+        </div>
+      </div>
+
+      <!-- Confusion Matrix Plot Showcase -->
+      <div class="info-card">
+        <h3>Confusion Matrix Visualization</h3>
+        <p>Generated by <code>backend/evaluate_model.py</code> on 640 unseen test samples (320 Legitimate, 320 Phishing):</p>
+        <div class="cm-container">
+          <img src="/screenshots/confusion_matrix.png" alt="Confusion Matrix" class="cm-image" id="cmImage" onerror="this.parentElement.innerHTML='<p class=\'missing-img\'>Run evaluate_model.py to view matrix</p>'"/>
+        </div>
+      </div>
+
+      <!-- BCA Concept Cards -->
+      <div class="concept-grid">
+        <div class="concept-card">
+          <h4>🎣 What is Phishing?</h4>
+          <p>Phishing is a cyber attack where attackers trick victims into revealing sensitive credentials, credit card details, or personal data by mimicking trusted institutions (banks, tech providers, social media).</p>
+        </div>
+        <div class="concept-card">
+          <h4>🔗 How Phishing URLs Work</h4>
+          <p>Phishers craft deceptive URLs using brand typo-squatting (e.g. <code>paypal-update.xyz</code>), deep nested subdomains, raw IP hosts, and token padding to deceive users and bypass rudimentary filters.</p>
+        </div>
+        <div class="concept-card">
+          <h4>🤖 Why Machine Learning?</h4>
+          <p>Static blacklists fail against zero-day phishing links created minutes before an attack. Machine Learning models extract structural features and generalize patterns to detect brand-new malicious URLs in milliseconds.</p>
+        </div>
+        <div class="concept-card">
+          <h4>📐 Evaluation Metrics</h4>
+          <p>
+            <strong>Precision:</strong> Out of all URLs flagged as phishing, how many were truly phishing.<br/>
+            <strong>Recall:</strong> Out of all real phishing URLs, how many did the model detect.<br/>
+            <strong>F1 Score:</strong> Harmonic mean balancing precision and recall.
+          </p>
+        </div>
+      </div>
+
+      <!-- Extracted Features Reference -->
+      <div class="info-card">
+        <h3>Extracted Machine Learning Features (11 Features)</h3>
+        <div class="features-list-grid">
+          <div class="feat-item"><code>url_length</code>: Total character length of URL</div>
+          <div class="feat-item"><code>domain_length</code>: Character length of hostname</div>
+          <div class="feat-item"><code>num_dots</code>: Count of '.' in full URL</div>
+          <div class="feat-item"><code>num_hyphens</code>: Count of '-' (common in typo-squatting)</div>
+          <div class="feat-item"><code>num_digits</code>: Number of numeric digits</div>
+          <div class="feat-item"><code>num_special_chars</code>: Count of @, ?, =, _, %, &, +, #</div>
+          <div class="feat-item"><code>num_slashes</code>: Count of '/' path delimiters</div>
+          <div class="feat-item"><code>has_https</code>: 1 if HTTPS encrypted, 0 if HTTP</div>
+          <div class="feat-item"><code>is_ip_address</code>: 1 if host is raw IPv4/IPv6, else 0</div>
+          <div class="feat-item"><code>num_subdomains</code>: Count of subdomains in domain hierarchy</div>
+          <div class="feat-item"><code>suspicious_words_count</code>: Matches for login, verify, account, update, secure, bank, signin, confirm</div>
+        </div>
+      </div>
+    </section>
+
+    <!-- SECTION 4: ABOUT PROJECT -->
+    <section id="about" class="page-section hidden">
+      <div class="section-header">
+        <h2 class="section-title">About <span class="cyan-text">PhishGuard</span></h2>
+        <p class="section-subtitle">Academic Bachelor of Computer Applications (BCA) 3rd-Year Capstone Project</p>
+      </div>
+
+      <div class="info-card">
+        <h3>Project Objective</h3>
+        <p>
+          The primary objective of <strong>PhishGuard</strong> is to develop an intelligent, automated, and real-time cyber defense system that analyzes website URLs and predicts whether they are legitimate or malicious phishing links.
+          Unlike traditional static blacklist approaches, this project leverages supervised Machine Learning to inspect structural, lexical, and protocol characteristics of URLs.
+        </p>
+      </div>
+
+      <!-- Architecture Diagram -->
+      <div class="info-card">
+        <h3>System Architecture & End-to-End Workflow</h3>
+        <div class="architecture-flow">
+          <div class="flow-step">
+            <span class="step-num">1</span>
+            <h4>Dataset</h4>
+            <p>Balanced collection of 3,200 labeled URLs (0 = Safe, 1 = Phish)</p>
+          </div>
+          <div class="flow-arrow">➔</div>
+          <div class="flow-step">
+            <span class="step-num">2</span>
+            <h4>Feature Extraction</h4>
+            <p>11 numerical features extracted via <code>feature_extractor.py</code></p>
+          </div>
+          <div class="flow-arrow">➔</div>
+          <div class="flow-step">
+            <span class="step-num">3</span>
+            <h4>Model Training</h4>
+            <p>Trained & compared LR, DT, and Random Forest; selected best F1</p>
+          </div>
+          <div class="flow-arrow">➔</div>
+          <div class="flow-step">
+            <span class="step-num">4</span>
+            <h4>Flask REST API</h4>
+            <p>Real-time endpoint <code>POST /predict</code> with JSON output</p>
+          </div>
+          <div class="flow-arrow">➔</div>
+          <div class="flow-step">
+            <span class="step-num">5</span>
+            <h4>Web Frontend</h4>
+            <p>SOC-style dark UI with confidence score & indicator breakdown</p>
+          </div>
+        </div>
+      </div>
+
+      <!-- Technology Stack -->
+      <div class="info-card">
+        <h3>Technologies Used</h3>
+        <div class="tech-tags">
+          <span class="tech-tag">Python 3</span>
+          <span class="tech-tag">Flask (REST API)</span>
+          <span class="tech-tag">Scikit-Learn</span>
+          <span class="tech-tag">Pandas</span>
+          <span class="tech-tag">NumPy</span>
+          <span class="tech-tag">Joblib</span>
+          <span class="tech-tag">Matplotlib & Seaborn</span>
+          <span class="tech-tag">HTML5 & CSS3</span>
+          <span class="tech-tag">Vanilla JavaScript (ES6)</span>
+          <span class="tech-tag">Local Storage API</span>
+        </div>
+      </div>
+    </section>
+  </main>
+
+  <!-- Footer -->
+  <footer class="footer">
+    <div class="footer-container">
+      <p>PhishGuard – AI-Powered Phishing URL Detection System • 3rd Year BCA Academic Project</p>
+      <p class="subtext">Engineered for Academic Demonstration and Cybersecurity Awareness</p>
+    </div>
+  </footer>
+
+  <script src="script.js"></script>
+</body>
+</html>
