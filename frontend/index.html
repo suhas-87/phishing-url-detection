@@ -3,14 +3,14 @@
 <head>
   <meta charset="UTF-8" />
   <meta name="viewport" content="width=device-width, initial-scale=1.0" />
-  <title>PhishGuard – AI-Powered Phishing URL Detection</title>
+  <title>PhishGuard – AI-Powered Phishing URL Detection & Website Security Intelligence</title>
   <link rel="preconnect" href="https://fonts.googleapis.com">
   <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
   <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700;800&family=JetBrains+Mono:wght@400;500;700&display=swap" rel="stylesheet">
   <link rel="stylesheet" href="style.css" />
 </head>
 <body>
-  <!-- Background Glow & Grid -->
+  <!-- Background Cyber Grid & Ambient Glows -->
   <div class="cyber-grid"></div>
   <div class="ambient-glow cyan-glow"></div>
   <div class="ambient-glow purple-glow"></div>
@@ -21,6 +21,7 @@
       <div class="logo">
         <span class="shield-icon">🛡️</span>
         <span class="logo-text">Phish<span class="cyan-text">Guard</span></span>
+        <span class="badge-tag">ENTERPRISE SEC-AI</span>
       </div>
       <nav class="nav-links">
         <a href="#scanner" class="nav-link active" data-target="scanner">URL Scanner</a>
@@ -36,18 +37,18 @@
   </header>
 
   <main class="main-content">
-    <!-- SECTION 1: URL SCANNER (HERO & INTERACTIVE SCANNER) -->
+    <!-- SECTION 1: URL SCANNER (HERO & SCANNER) -->
     <section id="scanner" class="page-section active-section">
       <div class="hero-section">
         <div class="hero-badge">
-          <span class="pulse-icon">⚡</span> Real-Time Machine Learning Threat Classifier
+          <span class="pulse-icon">⚡</span> Real-Time Machine Learning Threat Classifier & Domain Intelligence
         </div>
         <h1 class="hero-title">
           AI-Powered <span class="gradient-text">Phishing URL Detection</span>
         </h1>
         <p class="hero-desc">
           Check whether a website URL is safe or potentially malicious using Machine Learning.
-          Features 11-point URL structural analysis powered by Scikit-Learn classifiers.
+          Inspects 11 structural features, SSL certificates, WHOIS registration, DNS, and server hosting.
         </p>
 
         <!-- Scanner Card -->
@@ -58,7 +59,7 @@
               <input 
                 type="text" 
                 id="urlInput" 
-                placeholder="Enter website URL here... (e.g., https://paypal.com or http://192.168.1.10/login-verify.php)" 
+                placeholder="Enter website URL here... (e.g. https://wikipedia.org or http://192.168.1.10/login.php)" 
                 required 
                 autocomplete="off"
                 spellcheck="false"
@@ -66,7 +67,7 @@
               <button type="button" id="clearInputBtn" class="clear-btn" title="Clear input">✕</button>
             </div>
             <button type="submit" id="scanBtn" class="primary-scan-btn">
-              <span class="btn-text">Scan URL</span>
+              <span class="btn-text">Analyze URL</span>
               <span class="btn-icon">⚡</span>
             </button>
           </form>
@@ -74,11 +75,11 @@
           <!-- Quick Test Sample Buttons -->
           <div class="sample-chips">
             <span class="chip-label">Quick test samples:</span>
-            <button type="button" class="sample-chip legit" data-url="https://www.google.com/search?q=machine+learning">
-              Safe: Google
-            </button>
-            <button type="button" class="sample-chip legit" data-url="https://en.wikipedia.org/wiki/Cybersecurity">
+            <button type="button" class="sample-chip legit" data-url="https://www.wikipedia.org">
               Safe: Wikipedia
+            </button>
+            <button type="button" class="sample-chip legit" data-url="https://www.google.com">
+              Safe: Google
             </button>
             <button type="button" class="sample-chip phish" data-url="http://192.168.1.10/paypal-login-verify-account.php">
               Phish: IP Host
@@ -89,14 +90,60 @@
           </div>
         </div>
 
-        <!-- Scanning Loader -->
+        <!-- Multi-Step Scanning Loader -->
         <div id="scanLoader" class="scan-loader hidden">
-          <div class="radar-spinner"></div>
-          <p class="loader-text">Extracting 11 URL features & evaluating with Random Forest classifier...</p>
+          <div class="loader-header">
+            <div class="radar-spinner"></div>
+            <div>
+              <h3 class="loader-title">Analyzing Destination Website Security...</h3>
+              <p class="loader-current-step" id="loaderCurrentStepText">Initiating security checks...</p>
+            </div>
+          </div>
+
+          <!-- Progress Bar -->
+          <div class="progress-bar-container">
+            <div class="progress-bar-fill" id="scanProgressBar"></div>
+          </div>
+          <div class="progress-meta">
+            <span id="scanPercentText">0%</span>
+            <span id="scanStepCount">Step 1 of 7</span>
+          </div>
+
+          <!-- 7-Step Progress List -->
+          <div class="scanning-steps-grid">
+            <div class="step-badge" id="stepBadge1">
+              <span class="step-indicator">1</span>
+              <span class="step-label">URL Format & Syntax</span>
+            </div>
+            <div class="step-badge" id="stepBadge2">
+              <span class="step-indicator">2</span>
+              <span class="step-label">Domain Reputation</span>
+            </div>
+            <div class="step-badge" id="stepBadge3">
+              <span class="step-indicator">3</span>
+              <span class="step-label">ML Pattern Classifier</span>
+            </div>
+            <div class="step-badge" id="stepBadge4">
+              <span class="step-indicator">4</span>
+              <span class="step-label">SSL / TLS Certificate</span>
+            </div>
+            <div class="step-badge" id="stepBadge5">
+              <span class="step-indicator">5</span>
+              <span class="step-label">WHOIS & Domain Age</span>
+            </div>
+            <div class="step-badge" id="stepBadge6">
+              <span class="step-indicator">6</span>
+              <span class="step-label">Metadata & Server Headers</span>
+            </div>
+            <div class="step-badge" id="stepBadge7">
+              <span class="step-indicator">7</span>
+              <span class="step-label">Security Report Compilation</span>
+            </div>
+          </div>
         </div>
 
-        <!-- Result Card -->
-        <div id="resultCard" class="result-card hidden">
+        <!-- Result Container -->
+        <div id="resultCard" class="result-container hidden">
           <!-- Populated dynamically via script.js -->
         </div>
       </div>
@@ -105,8 +152,8 @@
     <!-- SECTION 2: SCAN HISTORY -->
     <section id="history" class="page-section hidden">
       <div class="section-header">
-        <h2 class="section-title">Scan <span class="cyan-text">History</span></h2>
-        <p class="section-subtitle">URLs analyzed in this browser session (saved in local storage)</p>
+        <h2 class="section-title">Analysis <span class="cyan-text">History</span></h2>
+        <p class="section-subtitle">Websites analyzed in this browser session. Click any entry to re-open the complete security report.</p>
         <div class="history-actions">
           <button id="clearHistoryBtn" class="secondary-btn danger">Clear History</button>
         </div>
@@ -116,16 +163,16 @@
         <div id="emptyHistoryMsg" class="empty-state">
           <span class="empty-icon">📋</span>
           <h3>No Scans Yet</h3>
-          <p>Scan a URL using the URL Scanner above to build your inspection log.</p>
+          <p>Scan a website URL using the scanner above to build your security inspection history.</p>
         </div>
         <div class="table-responsive">
           <table id="historyTable" class="cyber-table hidden">
             <thead>
               <tr>
-                <th>Time</th>
+                <th>Time (UTC)</th>
                 <th>Target URL</th>
                 <th>Classification</th>
-                <th>Confidence</th>
+                <th>Security Score</th>
                 <th>Risk Level</th>
                 <th>Action</th>
               </tr>
@@ -140,15 +187,15 @@
     <section id="model-info" class="page-section hidden">
       <div class="section-header">
         <h2 class="section-title">Machine Learning <span class="cyan-text">Model Details</span></h2>
-        <p class="section-subtitle">Academic overview of training, algorithms, features, and performance metrics for BCA demonstration</p>
+        <p class="section-subtitle">Academic overview of model training, algorithms, features, and performance metrics</p>
       </div>
 
       <!-- Live Model Stats Row -->
       <div class="metrics-grid">
         <div class="metric-card">
-          <span class="metric-title">Selected Model</span>
+          <span class="metric-title">Champion Model</span>
           <span class="metric-value cyan-text" id="statModelName">Random Forest</span>
-          <span class="metric-desc">Champion classifier automatically chosen</span>
+          <span class="metric-desc">Trained classifier loaded for real-time inference</span>
         </div>
         <div class="metric-card">
           <span class="metric-title">Test Accuracy</span>
@@ -158,7 +205,7 @@
         <div class="metric-card">
           <span class="metric-title">F1 Score</span>
           <span class="metric-value purple-text" id="statF1">100.0%</span>
-          <span class="metric-desc">Balanced Precision & Recall</span>
+          <span class="metric-desc">Harmonic mean of Precision & Recall</span>
         </div>
         <div class="metric-card">
           <span class="metric-title">Dataset Size</span>
@@ -170,7 +217,7 @@
       <!-- Algorithm Comparison Table -->
       <div class="info-card">
         <h3>Algorithm Comparison & Benchmark</h3>
-        <p>Three classification algorithms were trained on the identical 80/20 train/test split. The model with highest F1 score is automatically saved as <code>model/phishing_model.pkl</code>.</p>
+        <p>Three classification algorithms were trained on the identical 80/20 train/test split. The model with the highest F1 score is automatically saved as <code>model/phishing_model.pkl</code>.</p>
         <div class="table-responsive">
           <table class="cyber-table">
             <thead>
@@ -226,21 +273,21 @@
       <div class="concept-grid">
         <div class="concept-card">
           <h4>🎣 What is Phishing?</h4>
-          <p>Phishing is a cyber attack where attackers trick victims into revealing sensitive credentials, credit card details, or personal data by mimicking trusted institutions (banks, tech providers, social media).</p>
+          <p>Phishing is a cyber attack where adversaries trick victims into revealing sensitive credentials, tokens, or financial details by impersonating trusted entities.</p>
         </div>
         <div class="concept-card">
           <h4>🔗 How Phishing URLs Work</h4>
-          <p>Phishers craft deceptive URLs using brand typo-squatting (e.g. <code>paypal-update.xyz</code>), deep nested subdomains, raw IP hosts, and token padding to deceive users and bypass rudimentary filters.</p>
+          <p>Phishers craft deceptive links using brand typo-squatting, deep nested subdomains, raw IP hosts, and token padding to deceive users and bypass static filters.</p>
         </div>
         <div class="concept-card">
           <h4>🤖 Why Machine Learning?</h4>
-          <p>Static blacklists fail against zero-day phishing links created minutes before an attack. Machine Learning models extract structural features and generalize patterns to detect brand-new malicious URLs in milliseconds.</p>
+          <p>Static blacklists cannot identify zero-day phishing links created minutes before an attack. Machine Learning models analyze structural features to detect new threats instantly.</p>
         </div>
         <div class="concept-card">
           <h4>📐 Evaluation Metrics</h4>
           <p>
-            <strong>Precision:</strong> Out of all URLs flagged as phishing, how many were truly phishing.<br/>
-            <strong>Recall:</strong> Out of all real phishing URLs, how many did the model detect.<br/>
+            <strong>Precision:</strong> Measures exactness of phishing alerts.<br/>
+            <strong>Recall:</strong> Measures proportion of actual threats identified.<br/>
             <strong>F1 Score:</strong> Harmonic mean balancing precision and recall.
           </p>
         </div>
@@ -275,8 +322,8 @@
       <div class="info-card">
         <h3>Project Objective</h3>
         <p>
-          The primary objective of <strong>PhishGuard</strong> is to develop an intelligent, automated, and real-time cyber defense system that analyzes website URLs and predicts whether they are legitimate or malicious phishing links.
-          Unlike traditional static blacklist approaches, this project leverages supervised Machine Learning to inspect structural, lexical, and protocol characteristics of URLs.
+          <strong>PhishGuard</strong> is an intelligent, automated, and real-time cyber defense web application that inspects destination URLs to determine whether they are safe or malicious.
+          The system combines a trained Machine Learning classification pipeline with deep live domain intelligence (DNS, SSL/TLS, WHOIS, IP Geolocation, and Metadata) and safe redirection enforcement.
         </p>
       </div>
 
@@ -286,8 +333,8 @@
         <div class="architecture-flow">
           <div class="flow-step">
             <span class="step-num">1</span>
-            <h4>Dataset</h4>
-            <p>Balanced collection of 3,200 labeled URLs (0 = Safe, 1 = Phish)</p>
+            <h4>Input URL</h4>
+            <p>User supplies website link for security verification</p>
           </div>
           <div class="flow-arrow">➔</div>
           <div class="flow-step">
@@ -298,20 +345,20 @@
           <div class="flow-arrow">➔</div>
           <div class="flow-step">
             <span class="step-num">3</span>
-            <h4>Model Training</h4>
-            <p>Trained & compared LR, DT, and Random Forest; selected best F1</p>
+            <h4>ML Classification</h4>
+            <p>Trained Random Forest predicts Legitimate or Phishing</p>
           </div>
           <div class="flow-arrow">➔</div>
           <div class="flow-step">
             <span class="step-num">4</span>
-            <h4>Flask REST API</h4>
-            <p>Real-time endpoint <code>POST /predict</code> with JSON output</p>
+            <h4>Deep Intelligence</h4>
+            <p>Retrieves real SSL, WHOIS, DNS, and server metadata</p>
           </div>
           <div class="flow-arrow">➔</div>
           <div class="flow-step">
             <span class="step-num">5</span>
-            <h4>Web Frontend</h4>
-            <p>SOC-style dark UI with confidence score & indicator breakdown</p>
+            <h4>Security Report</h4>
+            <p>Safe Website Report with protected redirect confirmation</p>
           </div>
         </div>
       </div>
@@ -323,11 +370,12 @@
           <span class="tech-tag">Python 3</span>
           <span class="tech-tag">Flask (REST API)</span>
           <span class="tech-tag">Scikit-Learn</span>
-          <span class="tech-tag">Pandas</span>
-          <span class="tech-tag">NumPy</span>
-          <span class="tech-tag">Joblib</span>
+          <span class="tech-tag">Pandas & NumPy</span>
+          <span class="tech-tag">Python-WHOIS</span>
+          <span class="tech-tag">SSL / TLS Protocol</span>
+          <span class="tech-tag">DNS & Socket</span>
           <span class="tech-tag">Matplotlib & Seaborn</span>
-          <span class="tech-tag">HTML5 & CSS3</span>
+          <span class="tech-tag">HTML5 & Modern CSS3</span>
           <span class="tech-tag">Vanilla JavaScript (ES6)</span>
           <span class="tech-tag">Local Storage API</span>
         </div>
@@ -335,11 +383,34 @@
     </section>
   </main>
 
+  <!-- External Redirect Confirmation Modal -->
+  <div id="redirectModal" class="modal-overlay hidden">
+    <div class="modal-dialog">
+      <div class="modal-header">
+        <span class="modal-icon">⚠️</span>
+        <h3 class="modal-title">External Website Warning</h3>
+      </div>
+      <div class="modal-body">
+        <p class="modal-warning-text">
+          You are leaving the <strong>PhishGuard Phishing URL Detection System</strong> and navigating to an external destination:
+        </p>
+        <div class="modal-url-box" id="modalTargetUrlText">https://example.com</div>
+        <p class="modal-note">
+          While this domain has been classified as safe by our Machine Learning engine and passed SSL/WHOIS verification, always ensure you verify website identity before entering personal or financial credentials.
+        </p>
+      </div>
+      <div class="modal-footer">
+        <button type="button" id="modalCancelBtn" class="modal-btn secondary">Cancel</button>
+        <button type="button" id="modalConfirmBtn" class="modal-btn primary">Continue to Website ➔</button>
+      </div>
+    </div>
+  </div>
+
   <!-- Footer -->
   <footer class="footer">
     <div class="footer-container">
-      <p>PhishGuard – AI-Powered Phishing URL Detection System • 3rd Year BCA Academic Project</p>
-      <p class="subtext">Engineered for Academic Demonstration and Cybersecurity Awareness</p>
+      <p>PhishGuard – AI-Powered Phishing URL Detection & Website Security Intelligence • BCA Capstone Project</p>
+      <p class="subtext">Designed for Academic Demonstration, Real-Time Threat Analysis, and Viva Evaluation</p>
     </div>
   </footer>
 

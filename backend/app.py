@@ -1,13 +1,15 @@
 """
 PhishGuard - Flask REST API Backend
 Provides machine learning inference for URL phishing detection,
-serves the frontend UI, and provides model metrics endpoints.
+deep destination website intelligence (WHOIS, SSL, DNS, Server, Metadata),
+serves the frontend UI, and handles secure redirection validation.
 """
 
 import os
 import json
 import joblib
 import numpy as np
+from datetime import datetime, timezone
 from flask import Flask, request, jsonify, send_from_directory
 
 from feature_extractor import (
@@ -16,6 +18,8 @@ from feature_extractor import (
     get_suspicious_indicators,
     FEATURE_NAMES
 )
+
+from url_analyzer import analyze_url_deep
 
 # Initialize Flask application
 BASE_DIR = os.path.dirname(os.path.abspath(__file__))
@@ -109,17 +113,13 @@ def get_model_info():
     return jsonify(metadata)
 
 @app.route("/predict", methods=["POST", "OPTIONS"])
+@app.route("/analyze", methods=["POST", "OPTIONS"])
 def predict():
     """
-    Main prediction endpoint.
+    Main prediction & intelligence endpoint.
     Expects JSON: { "url": "https://example.com" }
-    Returns:
-      - url
-      - prediction: 'Legitimate' or 'Phishing'
-      - confidence: percentage (e.g. 96.4)
-      - risk_level: 'Low', 'Medium', 'High'
-      - indicators: educational breakdown of flagged characteristics
-      - features: exact numerical values fed to the ML model
+    Preserves all existing ML output while returning full Safe Website Report details
+    or Phishing Diagnostic breakdowns.
     """
     if request.method == "OPTIONS":
         return jsonify({"status": "ok"}), 200
@@ -157,7 +157,6 @@ def predict():
             probabilities = model.predict_proba(feature_vector)[0]
             confidence = float(probabilities[pred_class]) * 100.0
         else:
-            # Fallback for models without predict_proba
             confidence = 90.0
 
         confidence = round(confidence, 1)
@@ -170,24 +169,98 @@ def predict():
             prediction_label = "Legitimate"
             risk_level = "Low" if confidence >= 60.0 else "Medium"
 
+        is_safe = (pred_class == 0)
+
         # 5. Extract educational indicators for UI
         indicators = get_suspicious_indicators(raw_url, feature_dict)
+
+        # 6. Deep Destination Intelligence & Real Website Information
+        deep_info = analyze_url_deep(raw_url, prediction_label, confidence, feature_dict)
 
         # Clean up internal feature dict keys before returning
         clean_features = {k: v for k, v in feature_dict.items() if not k.startswith("_")}
 
+        # 7. Compile categorized warnings & recommendations for phishing/suspicious URLs
+        warning_reasons = []
+        if not is_safe:
+            for ind in indicators:
+                if ind.get("type") in ("danger", "warning"):
+                    warning_reasons.append(f"{ind.get('title')}: {ind.get('description')}")
+            if feature_dict.get("is_ip_address"):
+                warning_reasons.append("Direct IP address hosting masks fraudulent attacker infrastructure.")
+            if feature_dict.get("has_https") == 0:
+                warning_reasons.append("Unencrypted transmission allows eavesdropping and credential tampering.")
+            if feature_dict.get("suspicious_words_count", 0) > 0:
+                warning_reasons.append(f"Security-sensitive keywords found: {', '.join(feature_dict.get('_matched_suspicious_words', []))}")
+
+            recommendation = "Do not visit this website. Entering personal credentials or financial details here may result in identity theft or account compromise."
+        else:
+            recommendation = "The Machine Learning model classified this domain structure as safe and standard. Confirm destination identity before entering sensitive information."
+
         return jsonify({
+            # Original preserved fields
             "url": raw_url,
             "prediction": prediction_label,
             "confidence": confidence,
             "risk_level": risk_level,
             "model_used": metadata.get("best_model", model.__class__.__name__),
             "indicators": indicators,
-            "features": clean_features
+            "features": clean_features,
+
+            # New enhanced fields
+            "is_safe": is_safe,
+            "can_redirect": is_safe,
+            "security_score": deep_info.get("security_score", 95 if is_safe else 15),
+            "trust_score": deep_info.get("trust_score", 95 if is_safe else 15),
+            "timestamp": deep_info.get("timestamp", datetime.now(timezone.utc).strftime("%Y-%m-%d %H:%M:%S UTC")),
+            "warning_reasons": warning_reasons,
+            "recommendation": recommendation,
+
+            # Full categorized website information
+            "domain_info": deep_info.get("domain_info", {}),
+            "organization_info": deep_info.get("organization_info", {}),
+            "ssl_info": deep_info.get("ssl_info", {}),
+            "server_info": deep_info.get("server_info", {}),
+            "website_metadata": deep_info.get("website_metadata", {})
         })
 
     except Exception as e:
         return jsonify({"error": f"Prediction failed: {str(e)}"}), 500
+
+@app.route("/api/verify-redirect", methods=["POST"])
+def verify_redirect():
+    """
+    Validates that a requested outbound URL was classified as Safe by the ML model.
+    Prevents open redirect vulnerabilities by blocking any malicious/unverified destinations.
+    """
+    global model
+    if model is None:
+        load_ml_assets()
+
+    data = request.get_json(silent=True) or {}
+    target_url = str(data.get("url", "")).strip()
+
+    if not target_url:
+        return jsonify({"status": "blocked", "error": "Missing destination URL."}), 400
+
+    try:
+        # Re-verify through feature extraction & model
+        feat_dict = extract_features_dict(target_url)
+        vector = np.array([feat_dict[name] for name in FEATURE_NAMES], dtype=float).reshape(1, -1)
+        pred_class = int(model.predict(vector)[0])
+
+        if pred_class == 1:
+            return jsonify({
+                "status": "blocked",
+                "error": "Redirect blocked: destination is classified as phishing/malicious."
+            }), 403
+
+        return jsonify({
+            "status": "authorized",
+            "safe_url": target_url
+        }), 200
+    except Exception as e:
+        return jsonify({"status": "blocked", "error": str(e)}), 500
 
 if __name__ == "__main__":
     print("[*] Starting PhishGuard Server on http://127.0.0.1:5000")

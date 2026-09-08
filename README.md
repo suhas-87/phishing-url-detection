@@ -1,4 +1,4 @@
-# PhishGuard – Phishing URL Detection System
+# PhishGuard – Phishing URL Detection & Website Security Intelligence System
 ### AI-Powered Cyber Threat Intelligence & Academic Machine Learning Project
 **Designed for 3rd-Year BCA (Bachelor of Computer Applications) Capstone Demonstration & Viva**
 
@@ -6,11 +6,15 @@
 
 ## 📌 1. Project Overview
 
-Phishing is one of the most widespread cybersecurity threats, responsible for over 80% of reported security incidents globally. Attackers craft fraudulent hyperlinks to impersonate legitimate services (such as online banking, email providers, payment gateways, and social networks) to harvest sensitive credentials, financial details, and personal identity data.
+Phishing is one of the most pervasive cybersecurity threats, responsible for over 80% of reported security incidents globally. Attackers craft fraudulent hyperlinks to impersonate legitimate services (such as online banking, email providers, payment gateways, and social networks) to harvest sensitive credentials, financial details, and personal identity data.
 
 Traditional cyber defense mechanisms rely heavily on **static domain blacklists** (such as Google Safe Browsing or Spamhaus). While blacklists are effective against known threats, they fail against zero-day phishing attacks—malicious URLs configured minutes prior to an attack.
 
-**PhishGuard** addresses this vulnerability using **Supervised Machine Learning**. By extracting **11 structural, lexical, and protocol features** directly from URL strings, PhishGuard classifies URLs as **Legitimate (Safe)** or **Phishing (Malicious)** in real time without querying the remote web server or exposing the user to malware.
+**PhishGuard** addresses this vulnerability by combining **Supervised Machine Learning** with **Live Destination Intelligence**:
+1. **Machine Learning Classifier**: Extracts 11 structural, lexical, and protocol features to classify URLs as **Legitimate (Safe)** or **Phishing (Malicious)**.
+2. **Deep Domain & Security Intelligence**: Concurrently retrieves real SSL/TLS certificates, WHOIS registration, domain age, DNS records, hosting provider/ASN, website title/metadata, and redirect chains.
+3. **Safe Redirection Guard**: Prevents open redirect attacks by verifying destination safety and prompting users with a security confirmation modal before opening external links.
+4. **Actionable Threat Diagnostics**: Fully disables redirection for dangerous URLs, surfacing flagged keywords, IP host alerts, and protocol risks.
 
 ---
 
@@ -19,11 +23,17 @@ Traditional cyber defense mechanisms rely heavily on **static domain blacklists*
 - **Genuine Machine Learning Engine**: Implements and benchmarks three classification algorithms: **Logistic Regression**, **Decision Tree Classifier**, and **Random Forest Classifier**.
 - **Automated Model Selection**: Automatically identifies and exports the best-performing model based on F1-Score and Accuracy (`model/phishing_model.pkl`).
 - **11-Point URL Feature Extractor**: Purely numerical feature extraction covering length metrics, symbol frequency, domain structure, protocol security, IP hosts, and sensitive keyword analysis.
-- **Explainable AI Indicators**: For every scanned URL, PhishGuard provides human-readable threat indicators detailing *why* a URL was flagged (e.g., raw IP host, nested subdomains, missing HTTPS, suspicious keywords).
-- **RESTful Flask API**: Lightweight, production-grade backend exposing `/predict`, `/api/health`, and `/api/model-info` endpoints.
-- **Cybersecurity SOC-Themed Dashboard**: Dark-mode user interface with neon glowing badges, real-time confidence gauges, sample test chips, and raw feature vector inspectors.
-- **Browser Scan History**: Persists past scans in HTML5 `localStorage` with timestamps, verdicts, and one-click re-scan functionality.
-- **Academic Evaluation Suite**: Generates a high-resolution confusion matrix heatmap (`screenshots/confusion_matrix.png`) and comprehensive classification reports.
+- **7-Step Scanning Animation**: Interactive, multi-stage progress bar showing live verification phases (URL syntax -> domain reputation -> ML classifier -> SSL verification -> WHOIS -> metadata -> report compilation).
+- **Safe Website Report Card**: When a URL is verified as safe, compiles a comprehensive intelligence report:
+  - 🛡️ **Security Status**: Trust Score (0–100), ML confidence, Risk: Low, timestamp.
+  - 🌐 **Domain Information**: Domain name, creation date, expiration date, calculated domain age, registrar, nameservers.
+  - 🏢 **Organization Information**: Website owner / organization name, country, city.
+  - 🔒 **SSL & TLS Security**: Certificate status, issuer, subject, valid until, TLS protocol, cipher.
+  - 🖥️ **Server & Hosting**: IP address, hosting provider / ISP, network ASN, server location, web server software header.
+  - 📊 **Website Content & Metadata**: Favicon preview, website title, description, redirect count, final destination URL.
+- **Secure Redirection Guard**: "Visit Safe Website →" button prompts a security confirmation modal with anti-open-redirect validation before opening the destination in a new tab (`rel="noopener noreferrer"`).
+- **Phishing Warning Diagnostic**: Strong alert banner, high-risk score, explicit "Do not visit this website" recommendation, flagged keyword indicators, and completely disabled redirection (`⛔ Redirect Disabled for Phishing URL`).
+- **One-Click Report History**: Persistent log in HTML5 `localStorage` displaying URL, verdict, trust score, and timestamp. Clicking any previous scan immediately reloads the complete report!
 - **One-Click Windows Launcher**: Windows batch script (`run_project.bat`) that verifies the environment, checks models, launches the server, and opens the browser automatically.
 
 ---
@@ -33,7 +43,7 @@ Traditional cyber defense mechanisms rely heavily on **static domain blacklists*
 ```
 ┌─────────────────────────────────────────────────────────────┐
 │                       Target URL                            │
-│           (e.g., http://192.168.1.10/login.php)             │
+│           (e.g., https://www.wikipedia.org)                 │
 └──────────────────────────────┬──────────────────────────────┘
                                │
                                ▼
@@ -51,20 +61,27 @@ Traditional cyber defense mechanisms rely heavily on **static domain blacklists*
 │       model/phishing_model.pkl (Scikit-Learn Pipeline)      │
 └──────────────────────────────┬──────────────────────────────┘
                                │
-                               ▼
-┌─────────────────────────────────────────────────────────────┐
-│                 Flask REST API (backend/app.py)             │
-│        Output: Verdict, Confidence %, Risk Level,           │
-│                Indicators & Raw Feature Metrics             │
-└──────────────────────────────┬──────────────────────────────┘
-                               │
-                               ▼
-┌─────────────────────────────────────────────────────────────┐
-│             Web Dashboard (frontend/index.html)             │
-│  - Real-Time Safety Badges (🟢 SAFE / 🔴 PHISHING)          │
-│  - Animated Confidence Gauge & Threat Indicators            │
-│  - LocalStorage Scan History & BCA Viva Reference Tabs      │
-└─────────────────────────────────────────────────────────────┘
+              ┌────────────────┴────────────────┐
+              ▼                                 ▼
+   [Legitimate / Safe URL]             [Phishing / Dangerous URL]
+              │                                 │
+              ▼                                 ▼
+┌───────────────────────────────┐ ┌───────────────────────────┐
+│ Concurrent Deep Intelligence  │ │ Threat Diagnostics        │
+│ - SSL Certificate Inspection  │ │ - Highlight Flagged Words │
+│ - WHOIS & Domain Age Calc     │ │ - Protocol / IP Warnings  │
+│ - DNS Resolution & IP Lookup  │ │ - Risk Recommendation     │
+│ - Hosting Provider & ASN      │ │ - Redirection Disabled    │
+│ - Metadata, Title & Favicon   │ └─────────────┬─────────────┘
+└─────────────┬─────────────────┘               │
+              │                                 │
+              ▼                                 ▼
+┌───────────────────────────────┐ ┌───────────────────────────┐
+│ Safe Website Report Card      │ │ Phishing Warning Alert    │
+│ - Security Trust Score (0-100)│ │ - Risk: Critical          │
+│ - 6 Structured Intel Cards    │ │ - Disabled Redirect Button│
+│ - Protected Outbound Modal    │ └───────────────────────────┘
+└───────────────────────────────┘
 ```
 
 ---
@@ -86,6 +103,7 @@ Phishing-URL-Detection-System/
 ├── backend/
 │   ├── app.py                       # Flask web application & REST API server
 │   ├── feature_extractor.py         # 11-point URL numerical feature extraction engine
+│   ├── url_analyzer.py              # Deep destination intelligence (WHOIS, SSL, DNS, Server, Metadata)
 │   ├── train_model.py               # Loads data, trains LR/DT/RF, evaluates & exports champion
 │   ├── evaluate_model.py            # Generates metrics & confusion matrix plot
 │   └── requirements.txt             # Python package dependencies
@@ -93,7 +111,7 @@ Phishing-URL-Detection-System/
 ├── frontend/
 │   ├── index.html                   # SOC-themed cybersecurity web dashboard
 │   ├── style.css                    # Glassmorphism dark styles & neon indicators
-│   └── script.js                    # AJAX scanner, API integration & localStorage history
+│   └── script.js                    # Multi-step progress, reports, modal & history manager
 │
 ├── screenshots/
 │   └── confusion_matrix.png         # Generated high-resolution confusion matrix heatmap
@@ -134,23 +152,9 @@ Three supervised classification algorithms were trained on an **80/20 stratified
 | **Decision Tree Classifier** | 99.69% | 100.00% | 99.38% | 99.69% | Evaluated Benchmark |
 | **Logistic Regression** | 99.69% | 100.00% | 99.38% | 99.69% | Evaluated Baseline |
 
-### Evaluation Metrics Explanation:
-- **Accuracy**: Proportion of total predictions that were correct: $\frac{TP + TN}{TP + TN + FP + FN}$
-- **Precision**: Out of all URLs flagged as phishing, how many were genuine threats: $\frac{TP}{TP + FP}$
-- **Recall (Sensitivity)**: Out of all actual phishing URLs, how many did the model detect: $\frac{TP}{TP + FN}$
-- **F1-Score**: The harmonic mean of Precision and Recall, ensuring balanced evaluation on binary classes: $2 \times \frac{\text{Precision} \times \text{Recall}}{\text{Precision} + \text{Recall}}$
-
-The confusion matrix visualization is automatically saved to:
-`screenshots/confusion_matrix.png`
-
 ---
 
 ## ⚙️ 7. Installation & Setup Instructions
-
-### Prerequisites
-- Operating System: Windows 10/11, macOS, or Linux
-- Python: Version 3.9, 3.10, 3.11, 3.12, 3.13, or 3.14
-- Web Browser: Chrome, Edge, Firefox, or Safari
 
 ### Method A: One-Click Startup (Windows)
 Double-click `run_project.bat` in the project root directory.
@@ -166,125 +170,82 @@ The script will automatically:
 
 ### Method B: Manual Step-by-Step Setup
 
-#### Step 1: Open Terminal / PowerShell
-Navigate to the project root folder:
 ```bash
+# 1. Open terminal and navigate to project
 cd "Phishing-URL-Detection-System"
-```
 
-#### Step 2: (Optional) Create a Virtual Environment
-```bash
-python -m venv venv
-
-# Activate on Windows:
-venv\Scripts\activate
-
-# Activate on macOS/Linux:
-source venv/bin/activate
-```
-
-#### Step 3: Install Required Dependencies
-```bash
+# 2. Install dependencies
 pip install -r backend/requirements.txt
-```
 
-#### Step 4: Generate Dataset (if not present)
-```bash
-python dataset/generate_dataset.py
-```
-*Output: Generates `dataset/urls.csv` containing 3,200 balanced legitimate and phishing samples.*
+# 3. Start the Flask application
+cd backend
+python app.py
 
-#### Step 5: Train and Select Best ML Model
-```bash
-python backend/train_model.py
-```
-*Output: Trains Logistic Regression, Decision Tree, and Random Forest; selects the best model and saves `model/phishing_model.pkl` and `model/model_metadata.json`.*
-
-#### Step 6: Evaluate Model & Generate Confusion Matrix
-```bash
-python backend/evaluate_model.py
-```
-*Output: Prints performance metrics to the terminal and saves `screenshots/confusion_matrix.png`.*
-
-#### Step 7: Run the Flask Web Application
-```bash
-python backend/app.py
-```
-
-#### Step 8: Open in Web Browser
-Open your browser and navigate to:
-```
-http://127.0.0.1:5000
+# 4. Open web browser
+# http://127.0.0.1:5000
 ```
 
 ---
 
 ## 📡 8. REST API Specification
 
-### 1. Predict URL Classification
-- **Endpoint**: `POST /predict`
+### 1. Analyze URL
+- **Endpoint**: `POST /predict` (alias: `POST /analyze`)
 - **Headers**: `Content-Type: application/json`
 - **Request Body**:
   ```json
   {
-    "url": "http://192.168.1.10/paypal-login-verify-account.php"
+    "url": "https://www.wikipedia.org"
   }
   ```
-- **Response (Phishing)**:
+- **Response (Safe)**:
   ```json
   {
-    "url": "http://192.168.1.10/paypal-login-verify-account.php",
-    "prediction": "Phishing",
+    "url": "https://www.wikipedia.org",
+    "prediction": "Legitimate",
+    "is_safe": true,
     "confidence": 100.0,
-    "risk_level": "High",
-    "model_used": "Random Forest",
-    "indicators": [
-      {
-        "type": "danger",
-        "title": "Raw IP Address Used",
-        "description": "Domain '192.168.1.10' is a numeric IP address instead of a registered domain name."
-      },
-      {
-        "type": "warning",
-        "title": "No HTTPS Encryption",
-        "description": "The URL uses unencrypted HTTP protocol, leaving communication vulnerable."
-      },
-      {
-        "type": "danger",
-        "title": "Sensitive Keywords Found",
-        "description": "URL contains security-sensitive keyword(s): 'login', 'verify', 'account'."
-      }
-    ],
-    "features": {
-      "url_length": 51,
-      "domain_length": 12,
-      "num_dots": 4,
-      "num_hyphens": 3,
-      "num_digits": 9,
-      "num_special_chars": 0,
-      "num_slashes": 3,
-      "has_https": 0,
-      "is_ip_address": 1,
-      "num_subdomains": 0,
-      "suspicious_words_count": 3
+    "risk_level": "Low",
+    "trust_score": 99,
+    "can_redirect": true,
+    "domain_info": {
+      "domain_name": "wikipedia.org",
+      "creation_date": "2001-01-13",
+      "domain_age": "25 years, 8 months",
+      "registrar": "MarkMonitor, Inc."
+    },
+    "organization_info": {
+      "name": "Wikimedia Foundation, Inc.",
+      "country": "US"
+    },
+    "ssl_info": {
+      "has_ssl": true,
+      "issuer": "Let's Encrypt",
+      "status": "Valid & Active"
+    },
+    "server_info": {
+      "ip_address": "103.102.166.224",
+      "hosting_provider": "Wikimedia Foundation, Inc",
+      "country": "United States"
+    },
+    "website_metadata": {
+      "title": "Wikipedia",
+      "description": "Wikipedia is a free online encyclopedia...",
+      "redirect_count": 1
     }
   }
   ```
 
-### 2. System Health Check
-- **Endpoint**: `GET /api/health`
-- **Response**:
+### 2. Verify Safe Redirection
+- **Endpoint**: `POST /api/verify-redirect`
+- **Request Body**:
   ```json
   {
-    "status": "online",
-    "model_loaded": true,
-    "champion_algorithm": "Random Forest"
+    "url": "https://www.wikipedia.org"
   }
   ```
-
-### 3. Model Information & Metadata
-- **Endpoint**: `GET /api/model-info`
-- **Response**: Returns metrics, algorithm comparisons, feature list, and dataset split counts.
+- **Response**: `{"status": "authorized", "safe_url": "https://www.wikipedia.org"}`
+*(Returns HTTP 403 if destination is classified as phishing)*
 
 ---
 
@@ -293,29 +254,11 @@ http://127.0.0.1:5000
 ### Q1: What problem does this project solve?
 > **Answer**: It addresses the limitation of traditional domain blacklists in detecting new, zero-day phishing links. By extracting lexical and structural URL features and classifying them using a trained Machine Learning model, it detects malicious sites instantly without requiring network traffic or visiting the malicious webpage.
 
-### Q2: Why did you choose Random Forest over Logistic Regression and Decision Trees?
+### Q2: How does PhishGuard protect users during external redirection?
+> **Answer**: Rather than automatically redirecting, PhishGuard requires explicit user confirmation via a security warning modal, strictly disables redirection for dangerous URLs, and re-validates the destination URL on the backend (`/api/verify-redirect`) to prevent open redirect vulnerabilities.
+
+### Q3: Why did you choose Random Forest over Logistic Regression and Decision Trees?
 > **Answer**: Random Forest is an ensemble learning method that constructs multiple decision trees during training and outputs the mode of classes. It minimizes overfitting, handles non-linear feature interactions (such as the relationship between hyphens, IP hosts, and missing HTTPS), and consistently yielded superior F1-Score and generalizability across test splits.
-
-### Q3: How does feature extraction ensure that no rules are hardcoded?
-> **Answer**: `feature_extractor.py` converts a URL into pure numerical numbers (counts of dots, hyphens, digits, length, binary flags). The decision boundary is calculated mathematically by the trained Random Forest weights and branch thresholds during training, rather than `if-else` heuristic rules.
-
-### Q4: What is the difference between Precision and Recall in this project, and which is more critical?
-> **Answer**: 
-> - **Precision** measures: Of all URLs flagged as phishing, how many were truly phishing? High precision prevents legitimate websites from being blocked (low False Positives).
-> - **Recall** measures: Of all actual phishing links, how many did the system catch? High recall prevents malicious sites from slipping through (low False Negatives).
-> In cybersecurity, **Recall** is often prioritized because missing a phishing attack (False Negative) can lead to severe data theft, whereas a False Positive merely causes minor user verification.
-
-### Q5: What is the purpose of the 80/20 train-test split?
-> **Answer**: An 80/20 stratified split trains the model on 80% of historical data and reserves 20% completely unseen samples to evaluate real-world generalization and prevent data leakage or overfitting.
-
----
-
-## 🔮 10. Future Enhancements
-
-1. **Deep Learning Integration**: Incorporate Bidirectional LSTM or Transformer-based tokenizers (like BERT/RoBERTa) to analyze character-level sequence representations.
-2. **Browser Extension**: Package the model into a lightweight Chrome/Firefox extension that intercepts links before navigation.
-3. **WHOIS & DNS Integration**: Incorporate domain creation age, registrar reputation, and SSL certificate issuer attributes.
-4. **Live Screenshot Computer Vision**: Take headless browser captures of pages and compare visual layouts to trusted brands using Convolutional Neural Networks (CNNs).
 
 ---
 
