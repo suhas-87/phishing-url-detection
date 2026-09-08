@@ -6,6 +6,12 @@ serves the frontend UI, and handles secure redirection validation.
 """
 
 import os
+import sys
+
+BASE_DIR = os.path.dirname(os.path.abspath(__file__))
+if BASE_DIR not in sys.path:
+    sys.path.insert(0, BASE_DIR)
+
 import json
 import joblib
 import numpy as np
@@ -263,5 +269,6 @@ def verify_redirect():
         return jsonify({"status": "blocked", "error": str(e)}), 500
 
 if __name__ == "__main__":
-    print("[*] Starting PhishGuard Server on http://127.0.0.1:5000")
-    app.run(host="127.0.0.1", port=5000, debug=False)
+    port = int(os.environ.get("PORT", 5000))
+    print(f"[*] Starting PhishGuard Server on http://0.0.0.0:{port}")
+    app.run(host="0.0.0.0", port=port, debug=False)
